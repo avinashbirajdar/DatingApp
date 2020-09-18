@@ -1,0 +1,20 @@
+<div class="container">
+  <div *ngIf="!isregistermodel" style="text-align: center;">
+    <h1>Find Your Match</h1>
+    <p class="lead">Come on in to view your matches....All you need to do is sign in</p>
+    <div class="text-center">
+      <button class="btn btn-primary btn-lg mr-2" (click)="ToggleRegister()">Register</button>      
+      <button class="btn btn-info btn-lg">Learn More</button>
+
+    </div>
+  </div>
+  <div *ngIf="isregistermodel" class="container">
+    <div class="row justify-content-center">
+      <div class="col-4">
+        <app-register></app-register>
+      </div>
+    </div>
+  </div>
+  
+  <p *ngFor="let value of values" >{{value.name}}</p>
+</div>
