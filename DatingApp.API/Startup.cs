@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using DatingApp.API.Data;
@@ -15,6 +16,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Diagnostics;
+using AutoMapper;
+using DatingApp.API.Helpers;
 
 namespace DatingApp.API
 {
@@ -30,11 +34,15 @@ namespace DatingApp.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            
+             services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);             
             services.AddDbContext<DataContext>(x=>x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));                        
             services.AddCors();
+        
+            services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
             services.AddScoped<IAuthRepository,AuthRepository>();      
-
+            services.AddScoped<IDatingRepository,DatingRepository>();
+            services.AddAutoMapper(typeof(DatingRepository).Assembly);                                                                                
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options=>{
                 options.TokenValidationParameters= new TokenValidationParameters{
                     ValidateIssuerSigningKey=true,
@@ -42,7 +50,8 @@ namespace DatingApp.API
                     ValidateIssuer=false,
                     ValidateAudience=false
                 };
-            });      
+            });    
+            services.AddScoped<LogUserActivity>();  
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,9 +60,8 @@ namespace DatingApp.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }
+            }          
            
-
           //  app.UseCors(x=>x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeaders());
              app.UseCors(builder => builder.AllowAnyOrigin()
                                 .AllowAnyMethod()

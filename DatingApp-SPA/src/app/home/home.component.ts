@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
   getvalues(){
     this.http.get('http://localhost:5000/api/values').subscribe(next => {
       this.values = next;
-      console.log(next);
+      //console.log(next);
     },
     error => {
       console.log(error);
